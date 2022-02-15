@@ -8,7 +8,6 @@
 namespace DinoBannings
 {
 	nlohmann::json config;
-	static bool chat_command = true;
 
 	std::string FORCEINLINE getMapName()
 	{
@@ -39,16 +38,30 @@ namespace DinoBannings
 	void load()
 	{
 		DinoBannings::load_config();
-		if (chat_command)
+		if (config.value("EnableChatCommand", false))
 		{
-			ArkApi::GetCommands().AddChatCommand("/banned_dinos",
+			ArkApi::GetCommands().AddChatCommand(config.value("ChatCommand", "/disallowed_dinos").c_str(),
 				[](AShooterPlayerController* player_controller, FString* message, EChatSendMode::Type) {
-					std::string msg;
-					for (auto& dino : config.value(getMapName(), std::vector<std::string>()))
+					std::string disallowed_release;
+					for (auto& dino : config.value("/DisallowRelease"_json_pointer / getMapName(), std::vector<std::string>()))
 					{
-						msg.append(dino + ", ");
+						if (!disallowed_release.empty())
+							disallowed_release.append(", ");
+						disallowed_release.append(dino);
 					}
-					ArkApi::GetApiUtils().SendChatMessage(player_controller, "banned dinos", msg.c_str());
+
+					std::string disallowed_flying;
+					for (auto& dino : config.value("/PreventFlying"_json_pointer / getMapName(), std::vector<std::string>()))
+					{
+						if (!disallowed_flying.empty())
+							disallowed_flying.append(", ");
+						disallowed_flying.append(dino);
+					}
+
+					if (!disallowed_release.empty())
+						ArkApi::GetApiUtils().SendChatMessage(player_controller, "disallowed release", disallowed_release.c_str());
+					if (!disallowed_flying.empty())
+						ArkApi::GetApiUtils().SendChatMessage(player_controller, "disallowed flying", disallowed_flying.c_str());
 				});
 		}
 		ArkApi::GetHooks().SetHook("AShooterGameState.AllowDownloadDino_Implementation", &Hook_AShooterGameState_AllowDownloadDino_Implementation, &AShooterGameState_AllowDownloadDino_Implementation_original);
@@ -58,9 +71,9 @@ namespace DinoBannings
 	void unload()
 	{
 		Log::GetLog()->info("Remove hooks");
-		if (chat_command)
+		if (config.value("EnableChatCommand", false))
 		{
-			ArkApi::GetCommands().RemoveChatCommand("/banned_dinos");
+			ArkApi::GetCommands().RemoveChatCommand(config.value("ChatCommand", "/disallowed_dinos").c_str());
 		}
 		ArkApi::GetHooks().DisableHook("AShooterGameState.AllowDownloadDino_Implementation", &Hook_AShooterGameState_AllowDownloadDino_Implementation);
 		ArkApi::GetHooks().DisableHook("APrimalDinoCharacter.SetFlight", &Hook_APrimalDinoCharacter_SetFlight);

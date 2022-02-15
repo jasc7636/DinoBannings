@@ -1,4 +1,6 @@
 {
+  "EnableChatCommand": false,
+  "ChatCommand": "/disallowed_dinos",
   "DisallowRelease": {
     "TheIsland": [],
     "TheCenter": [],
