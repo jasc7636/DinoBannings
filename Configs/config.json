@@ -1,0 +1,37 @@
+{
+  "DisallowRelease": {
+    "TheIsland": [],
+    "TheCenter": [],
+    "ScorchedEarth_P": [],
+    "Ragnarok": [],
+    "Aberration_P": [
+      "GasBag",
+      "MilkGlider",
+      "IceJumper",
+      "LionfishLion",
+      "Sinomacrops"
+    ],
+    "Extinction": [],
+    "Valguero_P": [],
+    "Genesis": [],
+    "CrystalIsles": [],
+    "Gen2": [],
+    "LostIsland": []
+  },
+  "PreventFlying": {
+    "PlayerMessage": "You Can't Fly Here",
+    "TheIsland": [],
+    "TheCenter": [],
+    "ScorchedEarth_P": [],
+    "Ragnarok": [],
+    "Aberration_P": [
+      "HoverSkiff"
+    ],
+    "Extinction": [],
+    "Valguero_P": [],
+    "Genesis": [],
+    "CrystalIsles": [],
+    "Gen2": [],
+    "LostIsland": []
+  }
+}

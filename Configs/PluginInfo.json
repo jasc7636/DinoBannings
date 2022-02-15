@@ -1,0 +1,6 @@
+{
+  "FullName":"Dino Bannings",
+  "Description":"Disallows the download or release of certain dinos or prevents them from flying",
+  "Version":1.0,
+  "MinApiVersion":3.54
+}
