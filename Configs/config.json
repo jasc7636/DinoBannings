@@ -35,5 +35,21 @@
     "CrystalIsles": [],
     "Gen2": [],
     "LostIsland": []
+  },
+  "PreventMounting": {
+    "PlayerMessage": "You Can't Mount This Here",
+    "TheIsland": [],
+    "TheCenter": [],
+    "ScorchedEarth_P": [],
+    "Ragnarok": [],
+    "Aberration_P": [
+      "HoverSkiff"
+    ],
+    "Extinction": [],
+    "Valguero_P": [],
+    "Genesis": [],
+    "CrystalIsles": [],
+    "Gen2": [],
+    "LostIsland": []
   }
 }
