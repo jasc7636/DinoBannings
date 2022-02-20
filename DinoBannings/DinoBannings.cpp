@@ -34,6 +34,8 @@ namespace DinoBannings
 	DECLARE_HOOK(AShooterGameState_AllowDownloadDino_Implementation, bool, AShooterGameState*, TSubclassOf<APrimalDinoCharacter>);
 	// Gets called when a dino starts to fly or if it lands
 	DECLARE_HOOK(APrimalDinoCharacter_SetFlight, void, APrimalDinoCharacter*, bool, bool);
+	// Gets called if someone trys to mount
+	DECLARE_HOOK(APrimalDinoCharacter_CanRide, bool, APrimalDinoCharacter*, AShooterCharacter*, char*, char*, bool);
 
 	void load()
 	{
@@ -66,6 +68,7 @@ namespace DinoBannings
 		}
 		ArkApi::GetHooks().SetHook("AShooterGameState.AllowDownloadDino_Implementation", &Hook_AShooterGameState_AllowDownloadDino_Implementation, &AShooterGameState_AllowDownloadDino_Implementation_original);
 		ArkApi::GetHooks().SetHook("APrimalDinoCharacter.SetFlight", &Hook_APrimalDinoCharacter_SetFlight, &APrimalDinoCharacter_SetFlight_original);
+		ArkApi::GetHooks().SetHook("APrimalDinoCharacter.CanRide", &Hook_APrimalDinoCharacter_CanRide, &APrimalDinoCharacter_CanRide_original);
 	}
 
 	void unload()
@@ -77,6 +80,7 @@ namespace DinoBannings
 		}
 		ArkApi::GetHooks().DisableHook("AShooterGameState.AllowDownloadDino_Implementation", &Hook_AShooterGameState_AllowDownloadDino_Implementation);
 		ArkApi::GetHooks().DisableHook("APrimalDinoCharacter.SetFlight", &Hook_APrimalDinoCharacter_SetFlight);
+		ArkApi::GetHooks().DisableHook("APrimalDinoCharacter.CanRide", &Hook_APrimalDinoCharacter_CanRide);
 	}
 
 	bool Hook_AShooterGameState_AllowDownloadDino_Implementation(AShooterGameState* _this, TSubclassOf<APrimalDinoCharacter> TheDinoClass)
@@ -128,6 +132,34 @@ namespace DinoBannings
 		}
 
 		APrimalDinoCharacter_SetFlight_original(_this, bFly, bCancelForceLand);
+	}
+
+	bool Hook_APrimalDinoCharacter_CanRide(APrimalDinoCharacter* _this, AShooterCharacter* byPawn, char* bOutHasSaddle, char* bOutCanRideOtherThanSaddle, bool bDontCheckDistance)
+	{
+		if (_this != nullptr)
+		{
+			FString dinoClassName = ArkApi::GetApiUtils().GetBlueprint(_this);
+
+			for (auto& dino : config.value(nlohmann::json_pointer("/PreventMounting"_json_pointer / getMapName()), std::vector<std::string>()))
+			{
+				if (dinoClassName.Contains(dino.c_str()))
+				{
+					// Get player and send message
+					if (byPawn && byPawn->GetInstigatorController()->IsA(AShooterPlayerController::GetPrivateStaticClass()))
+					{
+						AShooterPlayerController* player_controller = static_cast<AShooterPlayerController*>(byPawn->GetInstigatorController());
+						if (player_controller)
+						{
+							ArkApi::GetApiUtils().SendNotification(player_controller, { 1.0f, 0.0f, 0.0f }, 2.0f, 2.0f, nullptr, config.value("/PreventMounting/PlayerMessage"_json_pointer, "").c_str());
+						}
+					}
+
+					return false;
+				}
+			}
+		}
+
+		return APrimalDinoCharacter_CanRide_original(_this, byPawn, bOutHasSaddle, bOutCanRideOtherThanSaddle, bDontCheckDistance);
 	}
 };
 
